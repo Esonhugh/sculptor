@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/esonhugh/GoDataExtractor/parser"
 	"github.com/esonhugh/GoDataExtractor/parser/query"
+	"time"
 )
 
 // Func is alias of DataExtractor customFunc and fallbackFunc type
@@ -139,4 +140,10 @@ func (q *DataExtractor) CurrentTarget() any {
 // Helpful in SetFallbackFunc and SetCustomFunc.
 func (q *DataExtractor) Error() error {
 	return q.lastErr
+}
+
+// Send func sends the extracted data to the channel.
+func (q *DataExtractor) send() {
+	q.ConstructedOutput <- q.targetStruct
+	time.Sleep(time.Millisecond * 1)
 }

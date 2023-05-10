@@ -14,6 +14,7 @@ func (p *DataExtractor) Do() {
 
 	Scanner.InitIndex(Selectors)
 	defer p.scanner.Close()
+	defer close(p.ConstructedOutput)
 
 	for {
 		var recordBuilder = p.targetStruct
@@ -56,7 +57,7 @@ func (p *DataExtractor) Do() {
 			goto FallBack
 		}
 
-		p.ConstructedOutput <- recordBuilder
+		p.send()
 
 		if p.count%100 == 0 {
 			log.Info("Record Count: ", p.count)

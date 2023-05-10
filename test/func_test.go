@@ -38,7 +38,7 @@ func TestJsonParse(t *testing.T) {
 		SetQuery("name", "user").
 		SetQuery("pass", "pass").
 		SetTargetStruct(&TestStruct{})
-	Doc.Do()
+	go Doc.Do()
 	for i := range Doc.ConstructedOutput {
 		t.Log(i)
 	}

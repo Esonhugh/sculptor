@@ -22,15 +22,20 @@ type DataExtractor[T any] struct {
 	targetStruct T
 
 	// CTX set for goruntime if thread process.
-	CTX               context.Context
-	count             uint64
+	CTX context.Context
+	// count is the number of records processed
+	count uint64
+	// ConstructedOutput is the channel to send the extracted data out
 	ConstructedOutput chan<- T
 
 	// lastErr is the last error occurred while processing the record. If nil keep process.
 	lastErr error
 
 	// FallbackFunc process if record is bad.
-	FallbackFunc func() T
+	FallbackFunc func() error
+
+	// CustomFunc Hooks before send to channel.
+	CustomFunc func() error
 }
 
 // SetQuery sets the query for the given tag name

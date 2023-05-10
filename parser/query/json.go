@@ -40,11 +40,11 @@ func (j *JSON) InitIndex(selectors []parser.DocumentQuery) {
 // Read func will read one line for json record
 func (j *JSON) Read() (string, error) {
 	if j.Recorder.Scan() {
-		if j.Recorder.Err() == io.EOF {
-			return "", io.EOF
-		}
 		return j.Recorder.Text(), nil
 	} else {
+		if j.Recorder.Err() == nil {
+			return "", io.EOF
+		}
 		return "", errors.New(fmt.Sprintf("EOF or Other Error: %v", j.Recorder.Err()))
 	}
 }

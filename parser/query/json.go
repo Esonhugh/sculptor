@@ -9,7 +9,6 @@ import (
 	"github.com/tidwall/gjson"
 	"io"
 	"os"
-	"reflect"
 )
 
 type JSON struct {
@@ -64,13 +63,13 @@ func (j *JSON) Select(selector []parser.DocumentQuery) (err error) {
 	for i, selects := range selector {
 		value := gjson.Get(j.CurrLine, selects.Query)
 		if !value.Exists() {
-			return errors.New(fmt.Sprintf("Value Not Found! \n"+
-				"- json: %v\n"+
-				"- json query: %v\n",
+			return errors.New(fmt.Sprintf("Value Not Found! "+
+				"json: >>%v<<"+
+				"json query: >>%v<<",
 				j.CurrLine,
 				selects.Query))
 		}
-		selector[i].SetValue(reflect.ValueOf(value.Value()))
+		selector[i].Value = value.Value()
 	}
 	return
 }

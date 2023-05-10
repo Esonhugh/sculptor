@@ -1,16 +1,10 @@
 package GoDataExtractor
 
-func (q *DataExtractor[T]) SetTargetStruct(targetStruct any) *DataExtractor[T] {
+func (q *DataExtractor) SetTargetStruct(targetStruct any) *DataExtractor {
 	q.targetStruct = targetStruct
 	return q
 }
 
-func (q *DataExtractor[T]) NewTargetStruct() *DataExtractor[T] {
-	var targetInstance T
-	q.targetStruct = targetInstance
-	return q
-}
-
-func (q *DataExtractor[T]) CurrentTarget() T {
+func (q *DataExtractor) CurrentTarget() any {
 	return q.targetStruct
 }

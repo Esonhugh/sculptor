@@ -73,7 +73,7 @@ func (c *CSV) Select(s []parser.DocumentQuery) error {
 		return e
 	} else {
 		for i, v := range s {
-			s[i].SetValue(reflect.ValueOf(OneRecord[v.Index]))
+			s[i].Value = OneRecord[v.Index]
 		}
 		return nil
 	}

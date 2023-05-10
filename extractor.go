@@ -6,7 +6,9 @@ import (
 	"github.com/esonhugh/GoDataExtractor/parser/query"
 )
 
-type DataExtractor[T any] struct {
+type Func func() error
+
+type DataExtractor struct {
 	// DocType is the type of document to be extracted
 	DocType DocumentType
 	// Filename is processed filename or path
@@ -19,27 +21,35 @@ type DataExtractor[T any] struct {
 	scanner parser.RawDataParser
 
 	// targetStruct is the sample struct to need to filled with the extracted data
-	targetStruct T
+	targetStruct any
 
 	// CTX set for goruntime if thread process.
 	CTX context.Context
 	// count is the number of records processed
 	count uint64
 	// ConstructedOutput is the channel to send the extracted data out
-	ConstructedOutput chan<- T
+	ConstructedOutput chan any
 
 	// lastErr is the last error occurred while processing the record. If nil keep process.
 	lastErr error
 
-	// FallbackFunc process if record is bad.
-	FallbackFunc func() error
+	// fallbackFunc process if record is bad.
+	fallbackFunc Func
 
-	// CustomFunc Hooks before send to channel.
-	CustomFunc func() error
+	// customFunc Hooks before send to channel.
+	customFunc Func
+}
+
+func NewDocumentExtractor(ctx context.Context, file string) *DataExtractor {
+	return &DataExtractor{
+		CTX:               ctx,
+		Filename:          file,
+		ConstructedOutput: make(chan any, 10),
+	}
 }
 
 // SetQuery sets the query for the given tag name
-func (q *DataExtractor[T]) SetQuery(tagName string, Query string) *DataExtractor[T] {
+func (q *DataExtractor) SetQuery(tagName string, Query string) *DataExtractor {
 	q.docQueries = append(q.docQueries, parser.DocumentQuery{
 		Query:   Query,
 		TagName: tagName,
@@ -47,7 +57,7 @@ func (q *DataExtractor[T]) SetQuery(tagName string, Query string) *DataExtractor
 	return q
 }
 
-func (q *DataExtractor[T]) setDocType(docType DocumentType) *DataExtractor[T] {
+func (q *DataExtractor) SetDocType(docType DocumentType) *DataExtractor {
 	q.DocType = docType
 	var dataParser parser.RawDataParser
 	switch docType {
@@ -62,7 +72,17 @@ func (q *DataExtractor[T]) setDocType(docType DocumentType) *DataExtractor[T] {
 	return q
 }
 
-func (q *DataExtractor[T]) SetScanner(dataParser parser.RawDataParser) *DataExtractor[T] {
+func (q *DataExtractor) SetScanner(dataParser parser.RawDataParser) *DataExtractor {
 	q.scanner = dataParser
+	return q
+}
+
+func (q *DataExtractor) SetCustomFunc(f Func) *DataExtractor {
+	q.customFunc = f
+	return q
+}
+
+func (q *DataExtractor) SetFallbackFunc(f Func) *DataExtractor {
+	q.fallbackFunc = f
 	return q
 }

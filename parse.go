@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-func (p DataExtractor[T]) Do() {
+func (p *DataExtractor) Do() {
 	Scanner := p.scanner
 	Selectors := p.docQueries
 
@@ -14,7 +14,9 @@ func (p DataExtractor[T]) Do() {
 	defer p.scanner.Close()
 
 	for {
-		var recordBuilder T
+		var recordBuilder = p.targetStruct
+		recordBuilderT := reflect.TypeOf(p.targetStruct).Elem()
+		recordBuilderV := reflect.ValueOf(p.targetStruct).Elem()
 
 		if p.lastErr != nil {
 			goto FallBack
@@ -28,7 +30,15 @@ func (p DataExtractor[T]) Do() {
 		}
 
 		for _, v := range Selectors {
-			reflect.ValueOf(recordBuilder).Elem().FieldByName(v.TagName).Set(reflect.ValueOf(v.GetValue()))
+			for i := 0; i < recordBuilderT.NumField(); i++ {
+				CurrentTagStr := recordBuilderT.Field(i).Tag.Get("extract")
+				if CurrentTagStr == v.TagName {
+					// copy Value to dest
+					recordBuilderV.Field(i).Set(reflect.ValueOf(v.Value))
+				}
+			}
+			//reflect.TypeOf(recordBuilder).
+			//	reflect.ValueOf(recordBuilder).Elem().FieldByName(v.TagName).Set(reflect.ValueOf(v.GetValue()))
 			// recordBuilder = // Todo: Build T type from Selected values with TagName
 		}
 
@@ -46,7 +56,7 @@ func (p DataExtractor[T]) Do() {
 		*/
 
 		p.targetStruct = recordBuilder
-		p.lastErr = p.CustomFunc()
+		p.lastErr = p.customFunc()
 		if p.lastErr != nil {
 			log.Error("CustomFunc Error: ", p.lastErr)
 			goto FallBack
@@ -68,6 +78,6 @@ func (p DataExtractor[T]) Do() {
 			log.Info("Got End Of file")
 			break
 		}
-		p.lastErr = p.FallbackFunc()
+		p.lastErr = p.fallbackFunc()
 	}
 }

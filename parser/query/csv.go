@@ -11,12 +11,14 @@ import (
 	"unsafe"
 )
 
+// CSV is real data parser for CSV file. It should implement parser.RawDataParser interface
 type CSV struct {
 	Header   []string
 	Recorder *csv.Reader
 	file     io.Closer
 }
 
+// NewCsvReader is func to create a CSV data parser
 func NewCsvReader(filename string) *CSV {
 	csvFile, err := os.Open(filename)
 	if err != nil {
@@ -62,14 +64,15 @@ func (c *CSV) Read() ([]string, error) {
 	return c.Recorder.Read()
 }
 
+// Close func is closer of CSV file
 func (c *CSV) Close() {
 	c.file.Close()
 }
 
+// Select func will select the data from one line in file.
 func (c *CSV) Select(s []parser.DocumentQuery) error {
 	if OneRecord, e := c.Read(); e != nil {
-		c.CurrentLineNum()
-		log.Error("Read CSV file error", e)
+		log.Errorf("Read CSV file error %w at line %v ", e, c.CurrentLine())
 		return e
 	} else {
 		for i, v := range s {
@@ -151,6 +154,7 @@ type position struct {
 	line, col int
 }
 
+// CurrentLine is func to get current line(include the header line) Sample. Save This and got this line.
 func (c *CSV) CurrentLine() string {
 	return string((*(*Reader)(unsafe.Pointer(c.Recorder))).RawBuffer)
 	// Same implement as below..... But with reflect.

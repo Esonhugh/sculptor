@@ -6,6 +6,8 @@ import (
 	"reflect"
 )
 
+// Do func extract the data from file and put it into the ConstructedOutput chan
+// use go Do() to make it as a new runtime.
 func (p *DataExtractor) Do() {
 	Scanner := p.scanner
 	Selectors := p.docQueries
@@ -42,21 +44,13 @@ func (p *DataExtractor) Do() {
 			// recordBuilder = // Todo: Build T type from Selected values with TagName
 		}
 
-		/*
-			// Ask for First and Second Record
-			if p.count == 0 || p.count == 1 {
-					log.Infof("This is No.%v Record generated struct.", p.count)
-					for _, info := range recordBuilder {
-						parser.PrintBasicInfo(*info)
-					}
-					if !AskForSure("Is this Record Correct?") {
-						log.Panicf("User Deny to send the Record %d", p.count)
-					}
-			}
-		*/
+		// Ask for First and Second Record
+		if p.count == 0 || p.count == 1 {
+			log.Infof("This is No.%v Record generated struct.", p.count)
+		}
 
 		p.targetStruct = recordBuilder
-		p.lastErr = p.customFunc()
+		p.lastErr = p.customFunc(p)
 		if p.lastErr != nil {
 			log.Error("CustomFunc Error: ", p.lastErr)
 			goto FallBack
@@ -68,16 +62,16 @@ func (p *DataExtractor) Do() {
 			log.Info("Record Count: ", p.count)
 		}
 		p.count++
+		continue
 
 		// ToDo: Get Another parsing Error and Record them and continue the parsing (non break) This break will let everything die.
 	FallBack:
-		log.Debug("Receive Select Error", p.lastErr)
-		log.Error(p.lastErr.Error())
+		log.Debug("Receive Error", p.lastErr)
 		if p.lastErr == io.EOF {
 			log.Info("End Record At No.", p.count, " line")
 			log.Info("Got End Of file")
-			break
-		}
-		p.lastErr = p.fallbackFunc()
+			break // stop parsing and exit.
+		} // make fallback
+		p.lastErr = p.fallbackFunc(p)
 	}
 }

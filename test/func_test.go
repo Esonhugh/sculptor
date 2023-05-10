@@ -1,8 +1,7 @@
 package testing
 
 import (
-	"context"
-	"github.com/esonhugh/GoDataExtractor"
+	gdocExt "github.com/esonhugh/GoDataExtractor"
 	"reflect"
 	"testing"
 )
@@ -34,14 +33,13 @@ func TestReflectReplace(t *testing.T) {
 func TestJsonParse(t *testing.T) {
 	t.Log("Start")
 
-	ctx := context.Background()
-	Doc := GoDataExtractor.NewDocumentExtractor(ctx, "test.json")
-	Doc.SetDocType(GoDataExtractor.JSON_DOCUMENT).
+	Doc := gdocExt.NewDocExtractor("test.json").
+		SetDocType(gdocExt.JSON_DOCUMENT).
 		SetQuery("name", "user").
 		SetQuery("pass", "pass").
 		SetTargetStruct(&TestStruct{})
 	Doc.Do()
 	for i := range Doc.ConstructedOutput {
-		t.Log(i.(TestStruct))
+		t.Log(i)
 	}
 }

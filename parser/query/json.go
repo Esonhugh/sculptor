@@ -11,12 +11,14 @@ import (
 	"os"
 )
 
+// JSON is real data parser for JSON file. It should implement parser.RawDataParser interface
 type JSON struct {
 	file     io.Closer
 	Recorder *bufio.Scanner
 	CurrLine string
 }
 
+// NewJsonReader is func to create a JSON data parser
 func NewJsonReader(filename string) *JSON {
 	jsonfile, err := os.Open(filename)
 	if err != nil {
@@ -32,7 +34,7 @@ func NewJsonReader(filename string) *JSON {
 	}
 }
 
-// InitIndex Set the selectors index
+// InitIndex Set the selectors index. Useless for json there.
 func (j *JSON) InitIndex(selectors []parser.DocumentQuery) {
 
 }
@@ -54,6 +56,7 @@ func (j *JSON) Close() {
 	j.file.Close()
 }
 
+// Select func will select the data from the one line in file.
 func (j *JSON) Select(selector []parser.DocumentQuery) (err error) {
 	j.CurrLine, err = j.Read()
 	if err != nil {
@@ -74,6 +77,7 @@ func (j *JSON) Select(selector []parser.DocumentQuery) (err error) {
 	return
 }
 
+// CurrentLine func will return the current decoding record.
 func (j *JSON) CurrentLine() string {
 	return j.CurrLine
 }

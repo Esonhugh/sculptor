@@ -29,15 +29,8 @@ func NewCsvReader(filename string) *CSV {
 
 	reader := csv.NewReader(csvFile)
 	// reader.ReuseRecord = true
-	Header, err := reader.Read() // give CSV file header line
-	if err != nil {
-		log.Error("GET csv file header error", err)
-	}
-
-	log.Debug("Header: ", Header)
 
 	return &CSV{
-		Header:   Header,
 		Recorder: reader,
 		file:     csvFile,
 	}
@@ -71,8 +64,17 @@ func (c *CSV) Close() {
 
 // Select func will select the data from one line in file.
 func (c *CSV) Select(s []parser.DocumentQuery) error {
+	if c.Header == nil {
+		var err error
+		c.Header, err = c.Recorder.Read() // give CSV file header line
+		if err != nil {
+			log.Error("GET csv file header error", err)
+			return err
+		}
+	}
+
 	if OneRecord, e := c.Read(); e != nil {
-		log.Errorf("Read CSV file error %w at line %v ", e, c.CurrentLine())
+		log.Errorf("Read CSV file error %v at line %v ", e, c.CurrentLineNum())
 		return e
 	} else {
 		for i, v := range s {

@@ -43,3 +43,31 @@ func TestJsonParse(t *testing.T) {
 		t.Log(i)
 	}
 }
+
+func TestCSVParse(t *testing.T) {
+	t.Log("Start")
+
+	Doc := gdocExt.NewDocExtractor("test.csv").
+		SetDocType(gdocExt.CSV_DOCUMENT).
+		SetQuery("name", "User").
+		SetQuery("pass", "Pass").
+		SetTargetStruct(&TestStruct{})
+	go Doc.Do()
+	for i := range Doc.ConstructedOutput {
+		t.Log(i)
+	}
+}
+
+func TestSpaceCSV(t *testing.T) {
+	t.Log("Start")
+
+	Doc := gdocExt.NewDocExtractor("blank_spilt.csv").
+		SetDocType(gdocExt.CSV_DOCUMENT).
+		SetQuery("name", "User").
+		SetQuery("pass", "Pass").
+		SetTargetStruct(&TestStruct{}).SetCSVDelimiter(' ')
+	go Doc.Do()
+	for i := range Doc.ConstructedOutput {
+		t.Log(i)
+	}
+}

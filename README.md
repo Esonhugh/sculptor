@@ -55,6 +55,11 @@ func main() {
 }
 ```
 
+## Demo
+
+[![demo of merging oneforall.csv and subfinder.json](https://res.cloudinary.com/marcomontalbano/image/upload/v1683795192/video_to_markdown/images/youtube--mz3x-h1qAvU-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://youtu.be/mz3x-h1qAvU "demo of merging oneforall.csv and subfinder output")
+
+
 ## More Example
 
 Checkout the [test](./test) folder to see more examples.

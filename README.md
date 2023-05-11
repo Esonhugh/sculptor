@@ -76,3 +76,5 @@ sculptor is licensed under the MIT License. See [LICENSE](LICENSE) for more deta
 Made with :heart: by [Esonhugh](https://eson.ninja)
 
 Inspired by [AkaAny/gormja_core2](https://github.com/AkaAny/gormja_core2)
+
+Inspired by [Trickest](https://trickest.com/)

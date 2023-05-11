@@ -1,8 +1,7 @@
 package testing
 
 import (
-	gdocExt "github.com/esonhugh/sculptor"
-	"reflect"
+	"github.com/esonhugh/sculptor"
 	"testing"
 )
 
@@ -11,30 +10,11 @@ type TestStruct struct {
 	Pass string `select:"pass"`
 }
 
-func TestReflectReplace(t *testing.T) {
-	t.Log("Start")
-	testStruct := &TestStruct{
-		Name: "1314",
-		Pass: "520",
-	}
-	V := reflect.Indirect(reflect.ValueOf(testStruct))
-	for i := 0; i < V.NumField(); i++ {
-		tagStr := V.Type().Field(i).Tag.Get("extract")
-		t.Log("tagStr:", tagStr)
-		if tagStr == "name" {
-			t.Log("name:", V)
-			V.Field(i).Set(reflect.ValueOf("114514"))
-			t.Log("name:", V.String())
-		}
-	}
-	t.Log(testStruct)
-}
-
 func TestJsonParse(t *testing.T) {
 	t.Log("Start")
 
-	Doc := gdocExt.NewDataSculptor("test.json").
-		SetDocType(gdocExt.JSON_DOCUMENT).
+	Doc := sculptor.NewDataSculptor("test.json").
+		SetDocType(sculptor.JSON_DOCUMENT).
 		SetQuery("name", "user").
 		SetQuery("pass", "pass").
 		SetTargetStruct(&TestStruct{})
@@ -47,8 +27,8 @@ func TestJsonParse(t *testing.T) {
 func TestCSVParse(t *testing.T) {
 	t.Log("Start")
 
-	Doc := gdocExt.NewDataSculptor("test.csv").
-		SetDocType(gdocExt.CSV_DOCUMENT).
+	Doc := sculptor.NewDataSculptor("test.csv").
+		SetDocType(sculptor.CSV_DOCUMENT).
 		SetQuery("name", "User").
 		SetQuery("pass", "Pass").
 		SetTargetStruct(&TestStruct{})
@@ -61,8 +41,8 @@ func TestCSVParse(t *testing.T) {
 func TestSpaceCSV(t *testing.T) {
 	t.Log("Start")
 
-	Doc := gdocExt.NewDataSculptor("blank_spilt.csv").
-		SetDocType(gdocExt.CSV_DOCUMENT).
+	Doc := sculptor.NewDataSculptor("blank_spilt.csv").
+		SetDocType(sculptor.CSV_DOCUMENT).
 		SetQuery("name", "User").
 		SetQuery("pass", "Pass").
 		SetTargetStruct(&TestStruct{}).SetCSVDelimiter(' ')

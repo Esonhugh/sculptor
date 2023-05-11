@@ -43,10 +43,17 @@ func (c *CSV) SetDelimiter(r rune) {
 
 // InitIndex func will set the Index of Column in Selector
 func (c *CSV) InitIndex(Selectors []parser.DocumentQuery) {
+	if c.Header == nil {
+		var err error
+		c.Header, err = c.Recorder.Read() // give CSV file header line
+		if err != nil {
+			log.Error("GET csv file header error", err)
+		}
+	}
 	for i, header := range c.Header {
-		for _, v := range Selectors {
+		for si, v := range Selectors {
 			if header == v.Query {
-				Selectors[i].Index = i
+				Selectors[si].Index = i
 			}
 		}
 	}
@@ -64,14 +71,6 @@ func (c *CSV) Close() {
 
 // Select func will select the data from one line in file.
 func (c *CSV) Select(s []parser.DocumentQuery) error {
-	if c.Header == nil {
-		var err error
-		c.Header, err = c.Recorder.Read() // give CSV file header line
-		if err != nil {
-			log.Error("GET csv file header error", err)
-			return err
-		}
-	}
 
 	if OneRecord, e := c.Read(); e != nil {
 		log.Errorf("Read CSV file error %v at line %v ", e, c.CurrentLineNum())

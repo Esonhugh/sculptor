@@ -1,4 +1,4 @@
-package GoDataExtractor
+package sculptor
 
 type DocumentType string
 

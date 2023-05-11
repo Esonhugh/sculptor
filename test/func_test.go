@@ -7,8 +7,8 @@ import (
 )
 
 type TestStruct struct {
-	Name string `extract:"name"`
-	Pass string `extract:"pass"`
+	Name string `select:"name"`
+	Pass string `select:"pass"`
 }
 
 func TestReflectReplace(t *testing.T) {
@@ -33,7 +33,7 @@ func TestReflectReplace(t *testing.T) {
 func TestJsonParse(t *testing.T) {
 	t.Log("Start")
 
-	Doc := gdocExt.NewDocExtractor("test.json").
+	Doc := gdocExt.NewDataSculptor("test.json").
 		SetDocType(gdocExt.JSON_DOCUMENT).
 		SetQuery("name", "user").
 		SetQuery("pass", "pass").
@@ -47,7 +47,7 @@ func TestJsonParse(t *testing.T) {
 func TestCSVParse(t *testing.T) {
 	t.Log("Start")
 
-	Doc := gdocExt.NewDocExtractor("test.csv").
+	Doc := gdocExt.NewDataSculptor("test.csv").
 		SetDocType(gdocExt.CSV_DOCUMENT).
 		SetQuery("name", "User").
 		SetQuery("pass", "Pass").
@@ -61,7 +61,7 @@ func TestCSVParse(t *testing.T) {
 func TestSpaceCSV(t *testing.T) {
 	t.Log("Start")
 
-	Doc := gdocExt.NewDocExtractor("blank_spilt.csv").
+	Doc := gdocExt.NewDataSculptor("blank_spilt.csv").
 		SetDocType(gdocExt.CSV_DOCUMENT).
 		SetQuery("name", "User").
 		SetQuery("pass", "Pass").

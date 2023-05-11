@@ -1,4 +1,4 @@
-package GoDataExtractor
+package sculptor
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -8,71 +8,78 @@ import (
 
 // Do func extract the data from file and put it into the ConstructedOutput chan
 // use go Do() to make it as a new runtime.
-func (p *DataSculptor) Do() {
-	Scanner := p.scanner
-	Selectors := p.docQueries
+func (d *DataSculptor) Do() {
+	Scanner := d.scanner
+	Selectors := d.docQueries
 
 	Scanner.InitIndex(Selectors)
-	defer p.scanner.Close()
-	defer close(p.ConstructedOutput)
+	defer d.scanner.Close()
+	defer close(d.ConstructedOutput)
 
 	for {
-		var recordBuilder = p.targetStruct
-		recordBuilderT := reflect.TypeOf(p.targetStruct).Elem()
-		recordBuilderV := reflect.ValueOf(p.targetStruct).Elem()
+		// var recordBuilder = d.targetStruct
+		recordBuilderT := reflect.TypeOf(d.targetStruct).Elem()
+		recordBuilderV := reflect.ValueOf(d.targetStruct).Elem()
 
-		if p.lastErr != nil {
+		if d.lastErr != nil {
 			goto FallBack
 		}
 
 		// for all selectors to build recordBuilder
-		p.lastErr = Scanner.Select(Selectors)
+		d.lastErr = Scanner.Select(Selectors)
 		// if read EOF or other error in this Loop
-		if p.lastErr != nil {
+		if d.lastErr != nil {
 			goto FallBack
 		}
 
 		for _, v := range Selectors {
 			for i := 0; i < recordBuilderT.NumField(); i++ {
-				CurrentTagStr := recordBuilderT.Field(i).Tag.Get("extract")
+				CurrentTagStr := recordBuilderT.Field(i).Tag.Get(d.options.TagKey)
 				if CurrentTagStr == v.TagName {
 					// copy Value to dest
 					recordBuilderV.Field(i).Set(reflect.ValueOf(v.Value))
 				}
 			}
-			//reflect.TypeOf(recordBuilder).
-			//	reflect.ValueOf(recordBuilder).Elem().FieldByName(v.TagName).Set(reflect.ValueOf(v.GetValue()))
-			// recordBuilder = // Todo: Build T type from Selected values with TagName
+			// Todo: Build T type from Selected values with TagName
 		}
 
 		// Ask for First and Second Record
-		if p.count == 0 || p.count == 1 {
-			log.Infof("This is No.%v Record generated struct.", p.count)
+		if d.count == 0 || d.count == 1 {
+			log.Infof("This is No.%v Record generated struct.", d.count)
 		}
 
-		p.targetStruct = recordBuilder
-		p.lastErr = p.customFunc(p)
-		if p.lastErr != nil {
-			log.Error("CustomFunc Error: ", p.lastErr)
-			goto FallBack
+		// d.targetStruct = recordBuilder
+		for i, f := range d.customFunc {
+			d.lastErr = f(d)
+			if d.lastErr != nil {
+				log.Errorf("CustomFunc[%v]Error: ", i, d.lastErr)
+				goto FallBack
+			}
 		}
 
-		p.send()
+		d.send()
 
-		if p.count%100 == 0 {
-			log.Info("Record Count: ", p.count)
+		if d.count%100 == 0 {
+			log.Info("Record Count: ", d.count)
 		}
-		p.count++
+		d.count++
 		continue
 
-		// ToDo: Get Another parsing Error and Record them and continue the parsing (non break) This break will let everything die.
 	FallBack:
-		log.Debug("Receive Error", p.lastErr)
-		if p.lastErr == io.EOF {
-			log.Info("End Record At No.", p.count, " line")
+		// ToDo: Get Another parsing Error and Record them and continue the parsing (non break) This break will let everything die.
+		log.Debug("Receive Error", d.lastErr)
+		if d.lastErr == io.EOF {
+			log.Info("End Record At No.", d.count, " line")
 			log.Info("Got End Of file")
 			break // stop parsing and exit.
-		} // make fallback
-		p.lastErr = p.fallbackFunc(p)
+		}
+		// do fallbacks
+		for _, f := range d.fallbackFunc {
+			err := f(d) // force fallbackFunc success.
+			if err != nil {
+				log.Error("Fallback Error: ", d.lastErr)
+				break
+			}
+		}
 	}
 }

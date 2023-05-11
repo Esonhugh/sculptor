@@ -3,17 +3,17 @@ package GoDataExtractor
 import (
 	"context"
 	"errors"
-	"github.com/esonhugh/GoDataExtractor/parser"
-	"github.com/esonhugh/GoDataExtractor/parser/query"
+	"github.com/esonhugh/sculptor/parser"
+	"github.com/esonhugh/sculptor/parser/query"
 	"time"
 )
 
-// Func is alias of DataExtractor customFunc and fallbackFunc type
-type Func func(*DataExtractor) error
+// Func is alias of DataSculptor customFunc and fallbackFunc type
+type Func func(*DataSculptor) error
 
 // DocumentType is core struct in package.
 // it contains all the information required to extract data from a document during runtime.
-type DataExtractor struct {
+type DataSculptor struct {
 
 	// DocType is the type of document to be extracted
 	DocType DocumentType
@@ -49,23 +49,23 @@ type DataExtractor struct {
 	customFunc Func
 }
 
-// NewDocExtractor returns a new DataExtractor with initialized values
-func NewDocExtractor(file string) *DataExtractor {
-	return &DataExtractor{
+// NewDocExtractor returns a new DataSculptor with initialized values
+func NewDocExtractor(file string) *DataSculptor {
+	return &DataSculptor{
 		CTX:               context.Background(),
 		Filename:          file,
 		ConstructedOutput: make(chan any, 10),
-		customFunc: func(d *DataExtractor) error {
+		customFunc: func(d *DataSculptor) error {
 			return nil
 		},
-		fallbackFunc: func(d *DataExtractor) error {
+		fallbackFunc: func(d *DataSculptor) error {
 			return d.lastErr
 		},
 	}
 }
 
 // SetQuery sets the query for the given tag name
-func (q *DataExtractor) SetQuery(tagName string, Query string) *DataExtractor {
+func (q *DataSculptor) SetQuery(tagName string, Query string) *DataSculptor {
 	q.docQueries = append(q.docQueries, parser.DocumentQuery{
 		Query:   Query,
 		TagName: tagName,
@@ -77,7 +77,7 @@ func (q *DataExtractor) SetQuery(tagName string, Query string) *DataExtractor {
 // If Supported, It will automatically set the scanner for the given document type.
 // If not supported, it will panic.
 // If you want Set you own scanners please use SetScanner() and follow the interface.
-func (q *DataExtractor) SetDocType(docType DocumentType) *DataExtractor {
+func (q *DataSculptor) SetDocType(docType DocumentType) *DataSculptor {
 	q.DocType = docType
 	var dataParser parser.RawDataParser
 	switch docType {
@@ -94,7 +94,7 @@ func (q *DataExtractor) SetDocType(docType DocumentType) *DataExtractor {
 
 // SetCSVDelimiter sets the delimiter for the CSV document if you set the document type to CSV.
 // Else it will make error.
-func (q *DataExtractor) SetCSVDelimiter(r rune) *DataExtractor {
+func (q *DataSculptor) SetCSVDelimiter(r rune) *DataSculptor {
 	if q.DocType != CSV_DOCUMENT {
 		q.lastErr = errors.New("your Document Type is not CSV. Please check your document type")
 	}
@@ -104,20 +104,20 @@ func (q *DataExtractor) SetCSVDelimiter(r rune) *DataExtractor {
 
 // SetScanner sets the scanner (parser.RawDataParser) which used to extract data from the document.
 // SetScanner is helpful if you want to use your own scanner to process your file.
-func (q *DataExtractor) SetScanner(dataParser parser.RawDataParser) *DataExtractor {
+func (q *DataSculptor) SetScanner(dataParser parser.RawDataParser) *DataSculptor {
 	q.scanner = dataParser
 	return q
 }
 
 // SetCustomFunc sets the customFunc which will be called
 // between constructing targetStruct complete and sending the extracted data to the channel.
-func (q *DataExtractor) SetCustomFunc(f Func) *DataExtractor {
+func (q *DataSculptor) SetCustomFunc(f Func) *DataSculptor {
 	q.customFunc = f
 	return q
 }
 
 // SetFallbackFunc sets the fallbackFunc which will be called when framework can't handle the record.
-func (q *DataExtractor) SetFallbackFunc(f Func) *DataExtractor {
+func (q *DataSculptor) SetFallbackFunc(f Func) *DataSculptor {
 	q.fallbackFunc = f
 	return q
 }
@@ -125,25 +125,25 @@ func (q *DataExtractor) SetFallbackFunc(f Func) *DataExtractor {
 // SetTargetStruct sets the target struct with the given struct pointer.
 // Helpful in SetFallbackFunc and SetCustomFunc.
 // It will be called when init before the Do() func.
-func (q *DataExtractor) SetTargetStruct(targetStruct any) *DataExtractor {
+func (q *DataSculptor) SetTargetStruct(targetStruct any) *DataSculptor {
 	q.targetStruct = targetStruct
 	return q
 }
 
 // CurrentTarget func returns the current target struct during process.
 // Helpful in SetFallbackFunc and SetCustomFunc.
-func (q *DataExtractor) CurrentTarget() any {
+func (q *DataSculptor) CurrentTarget() any {
 	return q.targetStruct
 }
 
 // Error() func returns the last error occurred while processing the record.
 // Helpful in SetFallbackFunc and SetCustomFunc.
-func (q *DataExtractor) Error() error {
+func (q *DataSculptor) Error() error {
 	return q.lastErr
 }
 
 // Send func sends the extracted data to the channel.
-func (q *DataExtractor) send() {
+func (q *DataSculptor) send() {
 	q.ConstructedOutput <- q.targetStruct
 	time.Sleep(time.Millisecond * 1)
 }

@@ -8,7 +8,7 @@ import (
 
 // Do func extract the data from file and put it into the ConstructedOutput chan
 // use go Do() to make it as a new runtime.
-func (p *DataExtractor) Do() {
+func (p *DataSculptor) Do() {
 	Scanner := p.scanner
 	Selectors := p.docQueries
 

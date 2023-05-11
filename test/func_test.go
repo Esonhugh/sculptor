@@ -1,7 +1,7 @@
 package testing
 
 import (
-	gdocExt "github.com/esonhugh/GoDataExtractor"
+	gdocExt "github.com/esonhugh/sculptor"
 	"reflect"
 	"testing"
 )

@@ -1,4 +1,4 @@
-module github.com/esonhugh/GoDataExtractor
+module github.com/esonhugh/sculptor
 
 go 1.20
 

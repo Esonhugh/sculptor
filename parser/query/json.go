@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/esonhugh/GoDataExtractor/parser"
+	"github.com/esonhugh/sculptor/parser"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	"io"

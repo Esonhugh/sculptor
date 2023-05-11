@@ -3,7 +3,7 @@ package query
 import (
 	"bufio"
 	"encoding/csv"
-	"github.com/esonhugh/GoDataExtractor/parser"
+	"github.com/esonhugh/sculptor/parser"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"os"

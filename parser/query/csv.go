@@ -73,6 +73,9 @@ func (c *CSV) Close() {
 func (c *CSV) Select(s []parser.DocumentQuery) error {
 
 	if OneRecord, e := c.Read(); e != nil {
+		if e == io.EOF {
+			return e
+		}
 		log.Errorf("Read CSV file error %v at line %v ", e, c.CurrentLineNum())
 		return e
 	} else {

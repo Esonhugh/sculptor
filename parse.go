@@ -20,6 +20,8 @@ func (d *DataSculptor) Do() {
 	defer close(d.ConstructedOutput)
 
 	for {
+		d.count++
+
 		// var recordBuilder = d.targetStruct
 		recordBuilderT := reflect.TypeOf(d.targetStruct).Elem()
 		recordBuilderV := reflect.ValueOf(d.targetStruct).Elem()
@@ -94,14 +96,13 @@ func (d *DataSculptor) Do() {
 
 		d.send()
 
-		if d.count%100 == 0 && d.count != 0 {
+		if d.count%100 == 0 {
 			log.Infof("%v Records have been generated.", d.count)
 		}
 		if d.count%1000 == 0 && d.count > 1000 {
 			log.Infof("%v Records have been generated.", d.count)
 		}
 
-		d.count++
 		continue
 
 	FallBack:

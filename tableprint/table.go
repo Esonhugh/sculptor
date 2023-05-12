@@ -34,6 +34,7 @@ func PrintTable(data TableData, Caption string) {
 	table.Render()
 }
 
+// PrintStruct use tagName as header and value as []body to print Struct
 func PrintStruct[T any](tagName string, sample []T) {
 
 	if len(sample) == 0 && tagName != "" {

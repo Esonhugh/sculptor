@@ -54,14 +54,16 @@ type DataSculptor struct {
 
 // NewDataSculptor returns a new DataSculptor with initialized values
 func NewDataSculptor(file string) *DataSculptor {
+	return NewDataSculptorWithOptionsAndCTX(file, DefaultOptions, context.Background())
+}
+
+// NewDataSculptorWithOptions returns a new DataSculptor with initialized values
+func NewDataSculptorWithOptionsAndCTX(file string, o Options, ctx context.Context) *DataSculptor {
 	return &DataSculptor{
-		CTX:               context.Background(),
+		CTX:               ctx,
 		Filename:          file,
-		ConstructedOutput: make(chan any, 10),
-		options: Options{
-			TagKey:  "select",
-			Latency: 1 * time.Millisecond,
-		},
+		ConstructedOutput: make(chan any, o.BufSize),
+		options:           o,
 	}
 }
 

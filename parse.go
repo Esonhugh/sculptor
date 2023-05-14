@@ -4,6 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"reflect"
+	"time"
 )
 
 // Do func extract the data from file and put it into the ConstructedOutput chan
@@ -14,6 +15,7 @@ func (d *DataSculptor) Do() {
 		defer d.Wg.Done()
 		d.rawDo()
 	}()
+	time.Sleep(d.options.Latency) // wait for process init
 }
 
 // rawDo func is real Do func execute the data extraction.

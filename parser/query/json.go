@@ -60,6 +60,9 @@ func (j *JSON) Close() {
 func (j *JSON) Select(selector []parser.DocumentQuery) (err error) {
 	j.CurrLine, err = j.Read()
 	if err != nil {
+		if err == io.EOF {
+			return
+		}
 		log.Error(err)
 		return
 	}

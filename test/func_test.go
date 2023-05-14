@@ -2,6 +2,7 @@ package testing
 
 import (
 	"github.com/esonhugh/sculptor"
+	"sync"
 	"testing"
 )
 
@@ -26,13 +27,17 @@ func TestJsonParse(t *testing.T) {
 
 func TestCSVParse(t *testing.T) {
 	t.Log("Start")
-
-	Doc := sculptor.NewDataSculptor("test.csv").
+	wg := sync.WaitGroup{}
+	Doc := sculptor.NewDataSculptorWithWg("test.csv", &wg).
 		SetDocType(sculptor.CSV_DOCUMENT).
 		SetQuery("name", "User").
 		SetQuery("pass", "Pass").
 		SetTargetStruct(&TestStruct{})
-	go Doc.Do()
+	Doc.Do()
+	go func() {
+		wg.Wait()
+		close(Doc.ConstructedOutput)
+	}()
 	for i := range Doc.ConstructedOutput {
 		t.Log(i)
 	}
@@ -46,7 +51,11 @@ func TestSpaceCSV(t *testing.T) {
 		SetQuery("name", "User").
 		SetQuery("pass", "Pass").
 		SetTargetStruct(&TestStruct{}).SetCSVDelimiter(' ')
-	go Doc.Do()
+	Doc.Do()
+	go func() {
+		Doc.Wg.Wait()
+		close(Doc.ConstructedOutput)
+	}()
 	for i := range Doc.ConstructedOutput {
 		t.Log(i)
 	}

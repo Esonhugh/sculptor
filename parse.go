@@ -7,8 +7,18 @@ import (
 )
 
 // Do func extract the data from file and put it into the ConstructedOutput chan
-// use go Do() to make it as a new runtime.
+// Do() is no not blocked.
 func (d *DataSculptor) Do() {
+	go func() {
+		d.Wg.Add(1)
+		defer d.Wg.Done()
+		d.rawDo()
+	}()
+}
+
+// rawDo func is real Do func execute the data extraction.
+func (d *DataSculptor) rawDo() {
+
 	Scanner := d.scanner
 	Selectors := d.docQueries
 
@@ -17,7 +27,6 @@ func (d *DataSculptor) Do() {
 	Scanner.InitIndex(Selectors)
 
 	defer d.scanner.Close()
-	defer close(d.ConstructedOutput)
 
 	for {
 		d.count++
@@ -135,5 +144,4 @@ func (d *DataSculptor) Do() {
 			}
 		}
 	}
-	d.CTX.Done()
 }

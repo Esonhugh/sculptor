@@ -1,10 +1,10 @@
 package sculptor
 
 import (
-	"context"
 	"errors"
 	"github.com/esonhugh/sculptor/parser"
 	"github.com/esonhugh/sculptor/parser/query"
+	"sync"
 	"time"
 )
 
@@ -30,8 +30,8 @@ type DataSculptor struct {
 	// targetStruct is the sample struct to need to filled with the extracted data
 	targetStruct any
 
-	// CTX set for goruntime if thread process.
-	CTX context.Context
+	// Wg set for goruntime if thread process.
+	Wg *sync.WaitGroup
 
 	// count is the number of records processed
 	count uint64
@@ -54,13 +54,18 @@ type DataSculptor struct {
 
 // NewDataSculptor returns a new DataSculptor with initialized values
 func NewDataSculptor(file string) *DataSculptor {
-	return NewDataSculptorWithOptionsAndCTX(file, DefaultOptions, context.Background())
+	return NewDataSculptorWithOptionsAndWg(file, DefaultOptions, &sync.WaitGroup{})
 }
 
-// NewDataSculptorWithOptions returns a new DataSculptor with initialized values
-func NewDataSculptorWithOptionsAndCTX(file string, o Options, ctx context.Context) *DataSculptor {
+// NewDataSculptorWithWg returns a new DataSculptor with initialized values
+func NewDataSculptorWithWg(file string, wg *sync.WaitGroup) *DataSculptor {
+	return NewDataSculptorWithOptionsAndWg(file, DefaultOptions, wg)
+}
+
+// NewDataSculptorWithOptionsAndWg returns a new DataSculptor with initialized values
+func NewDataSculptorWithOptionsAndWg(file string, o Options, wg *sync.WaitGroup) *DataSculptor {
 	return &DataSculptor{
-		CTX:               ctx,
+		Wg:                wg,
 		Filename:          file,
 		ConstructedOutput: make(chan any, o.BufSize),
 		options:           o,
@@ -149,4 +154,8 @@ func (d *DataSculptor) Error() error {
 func (d *DataSculptor) send() {
 	d.ConstructedOutput <- d.targetStruct
 	time.Sleep(d.options.Latency)
+}
+
+func (d *DataSculptor) Close() {
+	close(d.ConstructedOutput)
 }

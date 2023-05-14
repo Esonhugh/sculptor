@@ -36,8 +36,7 @@ func TestCSVParse(t *testing.T) {
 		SetDocType(sculptor.CSV_DOCUMENT).
 		SetQuery("name", "User").
 		SetQuery("pass", "Pass").
-		SetTargetStruct(&TestStruct{})
-	Doc.Do()
+		SetTargetStruct(&TestStruct{}).Do()
 	go func() {
 		wg.Wait()
 		close(Doc.ConstructedOutput)

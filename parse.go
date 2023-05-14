@@ -9,13 +9,18 @@ import (
 
 // Do func extract the data from file and put it into the ConstructedOutput chan
 // Do() is no not blocked.
-func (d *DataSculptor) Do() {
+func (d *DataSculptor) Do() *DataSculptor {
 	go func() {
 		d.Wg.Add(1)
 		defer d.Wg.Done()
 		d.rawDo()
 	}()
 	time.Sleep(d.options.Latency) // wait for process init
+	return d
+}
+
+func (d *DataSculptor) Wait() {
+	d.Wg.Wait()
 }
 
 // rawDo func is real Do func execute the data extraction.

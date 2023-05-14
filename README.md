@@ -48,10 +48,11 @@ func main() {
 		SetQuery("name", "user").
 		SetQuery("pass", "pass").
 		SetTargetStruct(&TestStruct{})
-	Doc.Do() // not block.
+	Doc.Do()  // not block.
 	go func() {
-		Doc.Wg.Wait() //let process complete and close 
-		close(Doc.ConstructedOutput)
+		Doc.Wait()  // let process complete and close chan 
+		// Doc.Wg.Wait()  // is real Doc.Wait() do.
+		Doc.Close()  // Same as close(Doc.ConstructedOutput)
     }()
 	for i := range Doc.ConstructedOutput {
 		log.Print(i)

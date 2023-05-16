@@ -24,6 +24,7 @@ func main() {
 		SetQuery("domain", "subdomain").
 		SetQuery("source", "source").
 		SetTargetStruct(&SubDomains{})
+	/* 	// Method 1 using merge and Do by yourself
 	common_output := sculptor.Merge(doc_subfinder, doc_oneforall)
 
 	doc_oneforall.Do()
@@ -33,6 +34,29 @@ func main() {
 		wg.Wait()
 		close(common_output)
 	}()
+	*/
+	/*  // Method 2 using MergeAndDo
+	common_output := sculptor.MergeAndDo(doc_subfinder, doc_oneforall)
+	*/
+	/*
+		// Method 3 using MergeAndDoWithWg
+		common_output := sculptor.MergeAndDoWithWg(wg, doc_subfinder, doc_oneforall)
+	*/
+	/*
+		// Method 4 using MergeV2
+		commWg, common_output := sculptor.MergeV2(doc_subfinder, doc_oneforall)
+		doc_oneforall.Do()
+		doc_subfinder.Do()
+		go func() {
+			commWg.Wait()
+			close(common_output)
+		}()
+	*/
+	// Method 5 using MergeV3
+	common_output := sculptor.MergeV3(doc_subfinder, doc_oneforall)
+	doc_oneforall.Do()
+	doc_subfinder.Do()
+	sculptor.AutoCloseV3()
 
 	if common_output == nil {
 		panic("merge error")
